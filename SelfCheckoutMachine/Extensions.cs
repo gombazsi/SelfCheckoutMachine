@@ -1,4 +1,6 @@
 ﻿using SelfCheckoutMachine.Data.Repositories;
+using SelfCheckoutMachine.Data.Repositories.Implementations;
+using SelfCheckoutMachine.Data.Repositories.Interfaces;
 using SelfCheckoutMachine.Repositories.Implementations;
 using SelfCheckoutMachine.Repositories.Interfaces;
 using SelfCheckoutMachine.Services.Implementations;
@@ -14,7 +16,9 @@ namespace SelfCheckoutMachine
         {
             builder.Services
                 .AddTransient<IStockService, StockService>()
+                .AddTransient<ICurrencyService, CurrencyService>()
                 .AddTransient<ICheckoutService, CheckoutService>()
+                .AddTransient<ICurrencyRepository, CurrencyRepository>()
                 .AddTransient<IStockRepository, StockRepository>();
             builder.Services.AddDbContext<AppDbContext>();
         }

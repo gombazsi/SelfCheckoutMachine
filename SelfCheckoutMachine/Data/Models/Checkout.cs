@@ -4,7 +4,8 @@ namespace SelfCheckoutMachine.Data.Models
 {
     public class Checkout
     {
-        public Dictionary<HufDenominations, int> Inserted { get; set; }
-        public int Price { get; set; }
+        public Dictionary<decimal, int> Inserted { get; set; }
+        public decimal Price { get; set; }
+        public string CurrencyCode { get; set; } = "HUF";
     }
 }

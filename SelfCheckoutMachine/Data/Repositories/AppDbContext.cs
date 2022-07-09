@@ -16,6 +16,18 @@ namespace SelfCheckoutMachine.Data.Repositories
             options.UseSqlServer(Configuration.GetConnectionString("SelfCheckoutMachineDb"));
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Currency>()
+                .Property(c => c.ValueInHuf)
+                .HasPrecision(8, 2);
+
+            modelBuilder.Entity<Stock>()
+                .Property(s => s.Denomination)
+                .HasPrecision(8, 2);
+        }
+
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Currency> Currencies { get; set; }
     }
 }

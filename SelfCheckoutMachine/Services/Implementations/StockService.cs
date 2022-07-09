@@ -8,30 +8,34 @@ namespace SelfCheckoutMachine.Services.Implementations
     public class StockService : IStockService
     {
         private readonly IStockRepository _stockRepository;
-        public StockService(IStockRepository stockRepository)
+        private readonly ICurrencyService _currencyService;
+        public StockService(IStockRepository stockRepository, ICurrencyService currencyService)
         {
             _stockRepository = stockRepository;
+            _currencyService = currencyService;
         }
-        public async Task<Dictionary<string, int>> GetStockDictionary()
+        public async Task<Dictionary<string, int>> GetStockDictionary(string currencyCode)
         {
-            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc();
+            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(currencyCode);
             return GetDictionaryFromList(stocksSaved);
         }
-        public async Task<List<Stock>> GetStocksOrderedByDenominationDesc()
+        public async Task<List<Stock>> GetStocksOrderedByDenominationDesc(string currencyCode)
         {
-            return await _stockRepository.GetStocksOrderedByDenominationDesc();
+            return await _stockRepository.GetStocksOrderedByDenominationDesc(currencyCode);
         }
-        public async Task<Dictionary<string, int>> PostStocks(Dictionary<string, int> stocks)
+        public async Task<Dictionary<string, int>> PostStocks(Dictionary<string, int> stocks, string currencyCode)
         {
-            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(); //maybe use filtered get method
+            Guid currencyId = (await _currencyService.GetCurrencyByCode(currencyCode)).Id;
+
+            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(currencyCode);
             foreach (KeyValuePair<string, int> stock in stocks)
             {
-                HufDenominations denomination = GetHufDenominations(stock.Key);
-                Stock stockToUpdate = stocksSaved.FirstOrDefault(s => s.Denomination == denomination);
+                decimal denomination = Convert.ToDecimal(stock.Key);
+                //exception
+                Stock stockToUpdate = stocksSaved.FirstOrDefault(s => s.Denomination == denomination && s.Currency.Code == currencyCode);
                 if (stockToUpdate == null)
                 {
-                    //save every coin/bill to db which doesnt throw error
-                    Stock created = new Stock { Denomination = denomination, Amount = stock.Value };
+                    Stock created = new Stock { Denomination = denomination, Amount = stock.Value, CurrencyId = currencyId };
                     await _stockRepository.CreateStock(created);
                     stocksSaved.Add(created);
                 }
@@ -52,24 +56,20 @@ namespace SelfCheckoutMachine.Services.Implementations
             Dictionary<string, int> stocks = new Dictionary<string, int>();
             foreach (Stock stock in stockList)
             {
-                stocks.Add(stock.Denomination.GetDescription(), stock.Amount);
+                stocks.Add(stock.Denomination.ToString(), stock.Amount);
+                //exception
             }
             return stocks;
         }
-        private HufDenominations GetHufDenominations(string value)
+
+        public async Task PostStocks(Dictionary<decimal, int> inserted, string currencyCode)
         {
-            int valueInt = Convert.ToInt32(value);
-            return (HufDenominations)valueInt;
-            //exception
-        }
-        public async Task PostStocks(Dictionary<HufDenominations, int> inserted)
-        {
-            Dictionary<string, int> keyValuePairs = new Dictionary<string, int>();
-            foreach (var item in inserted)
+            Dictionary<string, int> stocks = new Dictionary<string, int>();
+            foreach (KeyValuePair<decimal, int> stock in inserted)
             {
-                keyValuePairs.Add(item.Key.GetDescription(), item.Value);
+                stocks.Add(stock.Key.ToString(), stock.Value);
             }
-            await PostStocks(keyValuePairs);
+            await PostStocks(stocks, currencyCode);
         }
     }
 }
