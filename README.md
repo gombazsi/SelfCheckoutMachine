@@ -14,10 +14,10 @@ Used packages:
 - System.Linq 4.3
 
 About currency support:
-- Optional query parameter "currencyCode" is added to StocksController endpoints. If no parameter is supported, "HUF" is used.
+- Optional query parameter "currencyCode" is added to StocksController endpoints. If no parameter is given, "HUF" is used.
 - Valid currencyCodes are: "HUF", "EUR". Default conversion rates are seeded for both.
-- Exception is thrown id currencyCode is not supported by the machine.
-- Property "currencyCode" is added to object used in CheckoutController. If no code is supported, "HUF" is used.
+- Exception is thrown if currencyCode is not supported by the machine.
+- Property "currencyCode" is added to object used in CheckoutController. If no code is given, "HUF" is used.
 - Stock POST returns money stored in the database with the given currency, or "HUF"
 - Checkout POST returns change in "HUF". The machine returns as much change as it can. 
   No Exception is thrown, if the change is less then the "HUF" value of inserted money minus the price of the purcase.
