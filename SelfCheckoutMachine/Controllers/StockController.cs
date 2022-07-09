@@ -24,7 +24,7 @@ namespace SelfCheckoutMachine.Controllers
         }
 
         [HttpPost]
-        public async Task<List<Stock>> Stocks([FromBody] Dictionary<HufDenominations, int> stocks)
+        public async Task<Dictionary<string, int>> PostStocks([FromBody] Dictionary<string, int> stocks)
         {
             return await _stockService.PostStocks(stocks);
         }

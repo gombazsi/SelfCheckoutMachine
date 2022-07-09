@@ -18,5 +18,16 @@ namespace SelfCheckoutMachine.Repositories.Implementations
 
             return stocksSaved;
         }
+
+        public async Task CreateStock(Stock stock)
+        {
+            await _dbContext.Stocks.AddAsync(stock);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task SaveChanges()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
