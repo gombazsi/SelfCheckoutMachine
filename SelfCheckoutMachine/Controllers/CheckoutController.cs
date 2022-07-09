@@ -18,9 +18,16 @@ namespace SelfCheckoutMachine.Controllers
 
 
         [HttpPost]
-        public async Task<Dictionary<string, int>> PostCheckout([FromBody] Checkout checkout)
+        public async Task<ActionResult<Dictionary<string, int>>> PostCheckout([FromBody] Checkout checkout)
         {
-            return await _checkoutService.PostCheckout(checkout);
+            try
+            {
+                return Ok(await _checkoutService.PostCheckout(checkout));
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

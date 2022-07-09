@@ -16,26 +16,28 @@ namespace SelfCheckoutMachine.Services.Implementations
 
         public async Task<Dictionary<string, int>> PostCheckout(Checkout checkout)
         {
-            decimal valueInHuf = 1;
-            Guid currencyId = _currencyService.HufId;
             if(checkout.CurrencyCode == null)
             {
                 checkout.CurrencyCode = _currencyService.HufCode;
             }
-            else if (checkout.CurrencyCode != _currencyService.HufCode)
+            _currencyService.ValidateInput(checkout.Inserted, checkout.CurrencyCode);
+
+            decimal valueInHuf = 1;
+            Guid currencyId = _currencyService.HufId;
+            if (checkout.CurrencyCode != _currencyService.HufCode)
             {
                 Currency currency = await _currencyService.GetCurrencyByCode(checkout.CurrencyCode);
                 valueInHuf = currency.ValueInHuf;
                 currencyId = currency.Id;
             }
 
-            decimal paidAmountInHuf = checkout.Inserted.ToList().Select(s => s.Value * (int)s.Key * valueInHuf).Sum();
+            decimal paidAmountInHuf = checkout.Inserted.ToList().Select(s => s.Value * Convert.ToDecimal(s.Key) * valueInHuf).Sum();
             if (paidAmountInHuf < checkout.Price)
             {
                 throw new Exception("Insert more money to complete purchase.");
             }
-            List<Stock> stocks = await _stockService.GetStocksOrderedByDenominationDesc(_currencyService.HufCode);
 
+            List<Stock> stocks = await _stockService.GetStocksOrderedByDenominationDesc(_currencyService.HufCode);
             List<Stock> change = GetChangeInHuf(stocks, paidAmountInHuf - checkout.Price, checkout.CurrencyCode == _currencyService.HufCode);
             await _stockService.PostStocks(checkout.Inserted, checkout.CurrencyCode);
             await _stockService.SaveChanges();

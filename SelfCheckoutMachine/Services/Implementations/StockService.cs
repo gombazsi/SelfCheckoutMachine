@@ -16,11 +16,14 @@ namespace SelfCheckoutMachine.Services.Implementations
         }
         public async Task<Dictionary<string, int>> GetStockDictionary(string currencyCode)
         {
-            if(currencyCode == null)
+            if (currencyCode == null)
             {
                 currencyCode = _currencyService.HufCode;
             }
-            await _currencyService.GetCurrencyByCode(currencyCode);
+            else
+            {
+                await _currencyService.GetCurrencyByCode(currencyCode);
+            }
             List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(currencyCode);
             return GetDictionaryFromList(stocksSaved, currencyCode);
         }
@@ -30,6 +33,7 @@ namespace SelfCheckoutMachine.Services.Implementations
         }
         public async Task<Dictionary<string, int>> PostStocks(Dictionary<string, int> stocks, string currencyCode)
         {
+            _currencyService.ValidateInput(stocks, currencyCode);
             Guid currencyId = _currencyService.HufId;
             if(currencyCode == null)
             {

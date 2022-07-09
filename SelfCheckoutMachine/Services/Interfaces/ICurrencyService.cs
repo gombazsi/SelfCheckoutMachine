@@ -8,5 +8,6 @@ namespace SelfCheckoutMachine.Services.Interfaces
         public Guid HufId { get; }
         public string HufCode { get; }
         public string EurCode { get; }
+        public void ValidateInput(Dictionary<string, int> stocks, string currencyCode);
     }
 }
