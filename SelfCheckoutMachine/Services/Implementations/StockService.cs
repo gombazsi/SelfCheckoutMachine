@@ -33,25 +33,21 @@ namespace SelfCheckoutMachine.Services.Implementations
         }
         public async Task<Dictionary<string, int>> PostStocks(Dictionary<string, int> stocks, string currencyCode)
         {
-            _currencyService.ValidateInput(stocks, currencyCode);
-            Guid currencyId = _currencyService.HufId;
             if(currencyCode == null)
             {
                 currencyCode = _currencyService.HufCode;
             }
-            else if(currencyCode != _currencyService.HufCode)
+            _currencyService.ValidateInput(stocks, currencyCode);
+            Guid currencyId = _currencyService.HufId;
+            if(currencyCode != _currencyService.HufCode)
             {
                 currencyId = (await _currencyService.GetCurrencyByCode(currencyCode)).Id;
             }
 
-            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(currencyCode);
-            foreach (KeyValuePair<string, int> stock in stocks)
-            {
-                await InsertStock(stocksSaved, stock, currencyId);
-            }
-            await _stockRepository.SaveChanges();
+            List<Stock> stocksSaved = await InsertStocks(stocks, currencyId);
             return GetDictionaryFromList(stocksSaved, currencyCode);
         }
+
         public async Task SaveChanges()
         {
             await _stockRepository.SaveChanges();
@@ -73,21 +69,22 @@ namespace SelfCheckoutMachine.Services.Implementations
             return stocks;
         }
 
-        public async Task PostStocks(Dictionary<decimal, int> inserted, string currencyCode)
-        {
-            Dictionary<string, int> stocks = new Dictionary<string, int>();
-            foreach (KeyValuePair<decimal, int> stock in inserted)
-            {
-                stocks.Add(stock.Key.ToString(), stock.Value);
-            }
-            await PostStocks(stocks, currencyCode);
-        }
-
         private async Task<Stock> CreateStock(decimal denomination, int amount, Guid currencyId)
         {
             Stock created = new Stock { Denomination = denomination, Amount = amount, CurrencyId = currencyId };
             await _stockRepository.CreateStock(created);
             return created;
+        }
+
+        public async Task<List<Stock>> InsertStocks(Dictionary<string, int> stocks, Guid currencyId)
+        {
+            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(_currencyService.HufCode);
+            foreach (KeyValuePair<string, int> stock in stocks)
+            {
+                await InsertStock(stocksSaved, stock, currencyId);
+            }
+            await SaveChanges();
+            return stocksSaved;
         }
 
         private async Task InsertStock(List<Stock> stocks, KeyValuePair<string, int> stock, Guid currencyId)

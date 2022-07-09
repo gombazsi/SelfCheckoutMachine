@@ -21,7 +21,6 @@ namespace SelfCheckoutMachine.Services.Implementations
                 checkout.CurrencyCode = _currencyService.HufCode;
             }
             _currencyService.ValidateInput(checkout.Inserted, checkout.CurrencyCode);
-
             decimal valueInHuf = 1;
             Guid currencyId = _currencyService.HufId;
             if (checkout.CurrencyCode != _currencyService.HufCode)
@@ -37,10 +36,9 @@ namespace SelfCheckoutMachine.Services.Implementations
                 throw new Exception("Insert more money to complete purchase.");
             }
 
-            List<Stock> stocks = await _stockService.GetStocksOrderedByDenominationDesc(_currencyService.HufCode);
-            List<Stock> change = GetChangeInHuf(stocks, paidAmountInHuf - checkout.Price, checkout.CurrencyCode == _currencyService.HufCode);
-            await _stockService.PostStocks(checkout.Inserted, checkout.CurrencyCode);
-            await _stockService.SaveChanges();
+            List<Stock> stocksSaved = await _stockService.GetStocksOrderedByDenominationDesc(_currencyService.HufCode);
+            List<Stock> change = GetChangeInHuf(stocksSaved, paidAmountInHuf - checkout.Price, checkout.CurrencyCode == _currencyService.HufCode);
+            await _stockService.InsertStocks(checkout.Inserted, currencyId);
             return _stockService.GetDictionaryFromList(change);
 
         }
@@ -49,7 +47,7 @@ namespace SelfCheckoutMachine.Services.Implementations
         {
             List<Stock> change = new List<Stock>();
 
-            while(price > 0)
+            while (price > 0)
             {
                 Stock largest = stocks.FirstOrDefault(s => (int)s.Denomination <= price && s.Amount > 0);
                 if (largest == null)
@@ -66,14 +64,14 @@ namespace SelfCheckoutMachine.Services.Implementations
                 else
                 {
                     int amount = Math.Min((int)(price / largest.Denomination), largest.Amount);
-                    change.Add(new Stock { Denomination = largest.Denomination, Amount = amount, CurrencyId = _currencyService.HufId});
+                    change.Add(new Stock { Denomination = largest.Denomination, Amount = amount, CurrencyId = _currencyService.HufId });
                     largest.Amount -= amount;
                     if (largest.Amount == 0)
                     {
                         stocks.Remove(largest);
                     }
                     price -= amount * largest.Denomination;
-                }                
+                }
             }
             return change;
         }

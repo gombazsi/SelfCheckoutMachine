@@ -22,10 +22,13 @@ namespace SelfCheckoutMachine.Controllers
         {
             try
             {
-                return Ok(await _stockService.GetStockDictionary(currencyCode));
+                Dictionary<string, int> stocks = await _stockService.GetStockDictionary(currencyCode);
+                _logger.LogInformation($"Successfully queried {currencyCode ?? "HUF"} balance.");
+                return Ok(stocks);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Error querying {currencyCode ?? "HUF"} balance: {e.Message}");
                 return BadRequest(e.Message);
             }
         }
@@ -35,10 +38,13 @@ namespace SelfCheckoutMachine.Controllers
         {
             try
             {
-                return Ok(await _stockService.PostStocks(stocks, currencyCode));
+                Dictionary<string, int> stocksSaved = await _stockService.PostStocks(stocks, currencyCode);
+                _logger.LogInformation($"Successfully updated {currencyCode ?? "HUF"} balance.");
+                return Ok(stocksSaved);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Error updating {currencyCode ?? "HUF"} balance: {e.Message}");
                 return BadRequest(e.Message);
             }
         }

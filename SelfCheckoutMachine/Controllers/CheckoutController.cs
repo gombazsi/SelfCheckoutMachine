@@ -16,16 +16,18 @@ namespace SelfCheckoutMachine.Controllers
             _checkoutService = checkoutService;
         }
 
-
         [HttpPost]
         public async Task<ActionResult<Dictionary<string, int>>> PostCheckout([FromBody] Checkout checkout)
         {
             try
             {
-                return Ok(await _checkoutService.PostCheckout(checkout));
+                Dictionary<string, int> change = await _checkoutService.PostCheckout(checkout);
+                _logger.LogInformation($"Payment of {checkout.Price} completed successfully.");
+                return Ok(change);
             }
             catch(Exception e)
             {
+                _logger.LogError($"Error during checkout: {e.Message}");
                 return BadRequest(e.Message);
             }
         }
