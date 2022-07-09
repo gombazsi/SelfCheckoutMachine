@@ -20,6 +20,7 @@ namespace SelfCheckoutMachine.Services.Implementations
             {
                 currencyCode = _currencyService.HufCode;
             }
+            await _currencyService.GetCurrencyByCode(currencyCode);
             List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(currencyCode);
             return GetDictionaryFromList(stocksSaved, currencyCode);
         }
@@ -58,13 +59,11 @@ namespace SelfCheckoutMachine.Services.Implementations
                 currencyCode = _currencyService.HufCode;
             }
             Dictionary<string, int> stocks = new Dictionary<string, int>();
-            int precision = currencyCode == _currencyService.HufCode ? 0 : 2;
-            string format = "N" + precision;
             foreach (Stock stock in stockList)
             {
                 string denomination = currencyCode == _currencyService.HufCode ? 
                     string.Format("{0:0}", stock.Denomination) : 
-                    String.Format("{0:0.##}", stock.Denomination);
+                    string.Format("{0:0.##}", stock.Denomination);
                 stocks.Add(denomination, stock.Amount);
             }
             return stocks;

@@ -6,7 +6,6 @@ namespace SelfCheckoutMachine.Services.Interfaces
     {
         public Task<Currency> GetCurrencyByCode(string currencyCode);
         public Guid HufId { get; }
-        public Guid EurId { get; }
         public string HufCode { get; }
         public string EurCode { get; }
     }

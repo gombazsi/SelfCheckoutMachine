@@ -14,7 +14,10 @@ namespace SelfCheckoutMachine
     {
         public static void AddServices(this WebApplicationBuilder builder)
         {
+            builder.Services.AddControllers();
             builder.Services
+                .AddEndpointsApiExplorer()
+                .AddSwaggerGen()
                 .AddTransient<IStockService, StockService>()
                 .AddTransient<ICurrencyService, CurrencyService>()
                 .AddTransient<ICheckoutService, CheckoutService>()
