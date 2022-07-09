@@ -1,4 +1,7 @@
-﻿namespace SelfCheckoutMachine.Services.Interfaces
+﻿using SelfCheckoutMachine.Data.Enums;
+using SelfCheckoutMachine.Data.Models;
+
+namespace SelfCheckoutMachine.Services.Interfaces
 {
     public interface IStockService
     {

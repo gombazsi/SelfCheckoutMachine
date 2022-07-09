@@ -1,4 +1,6 @@
-﻿namespace SelfCheckoutMachine
+﻿using SelfCheckoutMachine.Data.Enums;
+
+namespace SelfCheckoutMachine.Data.Models
 {
     public class Stock
     {

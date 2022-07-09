@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SelfCheckoutMachine.Data.Models;
+using SelfCheckoutMachine.Data.Repositories;
 using SelfCheckoutMachine.Repositories.Interfaces;
 
 namespace SelfCheckoutMachine.Repositories.Implementations

@@ -1,4 +1,6 @@
-﻿using SelfCheckoutMachine.Repositories.Interfaces;
+﻿using SelfCheckoutMachine.Data.Enums;
+using SelfCheckoutMachine.Data.Models;
+using SelfCheckoutMachine.Repositories.Interfaces;
 using SelfCheckoutMachine.Services.Interfaces;
 
 namespace SelfCheckoutMachine.Services.Implementations

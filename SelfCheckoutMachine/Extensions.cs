@@ -1,4 +1,5 @@
-﻿using SelfCheckoutMachine.Repositories.Implementations;
+﻿using SelfCheckoutMachine.Data.Repositories;
+using SelfCheckoutMachine.Repositories.Implementations;
 using SelfCheckoutMachine.Repositories.Interfaces;
 using SelfCheckoutMachine.Services.Implementations;
 using SelfCheckoutMachine.Services.Interfaces;

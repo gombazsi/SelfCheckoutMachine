@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using SelfCheckoutMachine.Data.Enums;
+using SelfCheckoutMachine.Data.Models;
 using SelfCheckoutMachine.Services.Interfaces;
 
 namespace SelfCheckoutMachine.Controllers

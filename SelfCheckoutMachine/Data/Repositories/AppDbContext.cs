@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SelfCheckoutMachine.Data.Models;
 
-namespace SelfCheckoutMachine.Repositories.Implementations
+namespace SelfCheckoutMachine.Data.Repositories
 {
     public class AppDbContext : DbContext
     {

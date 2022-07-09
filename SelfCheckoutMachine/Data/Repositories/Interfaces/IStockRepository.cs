@@ -1,4 +1,6 @@
-﻿namespace SelfCheckoutMachine.Repositories.Interfaces
+﻿using SelfCheckoutMachine.Data.Models;
+
+namespace SelfCheckoutMachine.Repositories.Interfaces
 {
     public interface IStockRepository
     {

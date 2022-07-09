@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace SelfCheckoutMachine
+namespace SelfCheckoutMachine.Data.Enums
 {
     public enum HufDenominations
     {
