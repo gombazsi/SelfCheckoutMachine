@@ -13,31 +13,37 @@ namespace SelfCheckoutMachine.Services.Implementations
             _stockService = stockService;
             _currencyService = currencyService;
         }
+
         public async Task<Dictionary<string, int>> PostCheckout(Checkout checkout)
         {
             decimal valueInHuf = 1;
-            Guid currencyId = new Guid("960de4c0-bbbe-4e74-b4d5-4c1754f4f9ba");
-            if (checkout.CurrencyCode != "HUF")
+            Guid currencyId = _currencyService.HufId;
+            if(checkout.CurrencyCode == null)
+            {
+                checkout.CurrencyCode = _currencyService.HufCode;
+            }
+            else if (checkout.CurrencyCode != _currencyService.HufCode)
             {
                 Currency currency = await _currencyService.GetCurrencyByCode(checkout.CurrencyCode);
                 valueInHuf = currency.ValueInHuf;
                 currencyId = currency.Id;
             }
 
-            decimal paidAmount = checkout.Inserted.ToList().Select(s => s.Value * (int)s.Key * valueInHuf).Sum();
-            if (paidAmount < checkout.Price)
+            decimal paidAmountInHuf = checkout.Inserted.ToList().Select(s => s.Value * (int)s.Key * valueInHuf).Sum();
+            if (paidAmountInHuf < checkout.Price)
             {
                 throw new Exception("Insert more money to complete purchase.");
             }
-            List<Stock> stocks = await _stockService.GetStocksOrderedByDenominationDesc("HUF");
+            List<Stock> stocks = await _stockService.GetStocksOrderedByDenominationDesc(_currencyService.HufCode);
 
-            List<Stock> change = GetChange(stocks, paidAmount - checkout.Price, checkout.CurrencyCode == "HUF");
+            List<Stock> change = GetChangeInHuf(stocks, paidAmountInHuf - checkout.Price, checkout.CurrencyCode == _currencyService.HufCode);
             await _stockService.PostStocks(checkout.Inserted, checkout.CurrencyCode);
             await _stockService.SaveChanges();
             return _stockService.GetDictionaryFromList(change);
 
         }
-        private List<Stock> GetChange(List<Stock> stocks, decimal price, bool exactChange = true)
+
+        private List<Stock> GetChangeInHuf(List<Stock> stocks, decimal price, bool exactChange = true)
         {
             List<Stock> change = new List<Stock>();
 
@@ -57,15 +63,14 @@ namespace SelfCheckoutMachine.Services.Implementations
                 }
                 else
                 {
-                    int denomination = (int)largest.Denomination;
-                    int amount = Convert.ToInt32(price / denomination);
-                    change.Add(new Stock { Denomination = largest.Denomination, Amount = amount, CurrencyId = new Guid("960de4c0-bbbe-4e74-b4d5-4c1754f4f9ba" )});
+                    int amount = Math.Min((int)(price / largest.Denomination), largest.Amount);
+                    change.Add(new Stock { Denomination = largest.Denomination, Amount = amount, CurrencyId = _currencyService.HufId});
                     largest.Amount -= amount;
                     if (largest.Amount == 0)
                     {
                         stocks.Remove(largest);
                     }
-                    price -= amount * denomination;
+                    price -= amount * largest.Denomination;
                 }                
             }
             return change;

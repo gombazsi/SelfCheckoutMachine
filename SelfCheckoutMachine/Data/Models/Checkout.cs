@@ -6,6 +6,6 @@ namespace SelfCheckoutMachine.Data.Models
     {
         public Dictionary<decimal, int> Inserted { get; set; }
         public decimal Price { get; set; }
-        public string CurrencyCode { get; set; } = "HUF";
+        public string CurrencyCode { get; set; }
     }
 }

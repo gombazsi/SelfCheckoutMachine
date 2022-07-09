@@ -18,13 +18,13 @@ namespace SelfCheckoutMachine.Controllers
         }
 
         [HttpGet]
-        public async Task<Dictionary<string, int>> GetStocks([FromQuery] string currencyCode = "HUF")
+        public async Task<Dictionary<string, int>> GetStocks([FromQuery] string currencyCode = null)
         {
             return await _stockService.GetStockDictionary(currencyCode);
         }
 
         [HttpPost]
-        public async Task<Dictionary<string, int>> PostStocks([FromBody] Dictionary<string, int> stocks, string currencyCode = "HUF")
+        public async Task<Dictionary<string, int>> PostStocks([FromBody] Dictionary<string, int> stocks, string currencyCode = null)
         {
             return await _stockService.PostStocks(stocks, currencyCode);
         }
