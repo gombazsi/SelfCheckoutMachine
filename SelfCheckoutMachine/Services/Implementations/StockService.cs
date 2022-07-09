@@ -27,6 +27,7 @@ namespace SelfCheckoutMachine.Services.Implementations
             List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(currencyCode);
             return GetDictionaryFromList(stocksSaved, currencyCode);
         }
+
         public async Task<List<Stock>> GetStocksOrderedByDenominationDesc(string currencyCode)
         {
             return await _stockRepository.GetStocksOrderedByDenominationDesc(currencyCode);

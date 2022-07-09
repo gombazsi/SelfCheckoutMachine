@@ -30,6 +30,7 @@ namespace SelfCheckoutMachine.Services.Implementations
                 currencyId = currency.Id;
             }
 
+            //get sum of paid money in huf
             decimal paidAmountInHuf = checkout.Inserted.ToList().Select(s => s.Value * Convert.ToDecimal(s.Key) * valueInHuf).Sum();
             if (paidAmountInHuf < checkout.Price)
             {
@@ -49,6 +50,7 @@ namespace SelfCheckoutMachine.Services.Implementations
 
             while (price > 0)
             {
+                //get largest denomination
                 Stock largest = stocks.FirstOrDefault(s => (int)s.Denomination <= price && s.Amount > 0);
                 if (largest == null)
                 {
@@ -58,21 +60,28 @@ namespace SelfCheckoutMachine.Services.Implementations
                     }
                     else
                     {
+                        //return returnable change stored in the machibe, which is inaccurate
                         return change;
                     }
                 }
                 else
                 {
+                    //get largest amount
                     int amount = Math.Min((int)(price / largest.Denomination), largest.Amount);
                     change.Add(new Stock { Denomination = largest.Denomination, Amount = amount, CurrencyId = _currencyService.HufId });
+                    
+                    //reduce amount stored in database
                     largest.Amount -= amount;
                     if (largest.Amount == 0)
                     {
                         stocks.Remove(largest);
                     }
+
+                    //reduce remaining price
                     price -= amount * largest.Denomination;
                 }
             }
+            //accurately return change
             return change;
         }
     }
