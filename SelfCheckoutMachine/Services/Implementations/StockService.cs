@@ -14,18 +14,16 @@ namespace SelfCheckoutMachine.Services.Implementations
         }
         public async Task<Dictionary<string, int>> GetStockDictionary()
         {
-            List<Stock> stocksSaved = await GetStocks();
+            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc();
             return GetDictionaryFromList(stocksSaved);
         }
-
-        public async Task<List<Stock>> GetStocks()
+        public async Task<List<Stock>> GetStocksOrderedByDenominationDesc()
         {
-            return await _stockRepository.GetStocks();
+            return await _stockRepository.GetStocksOrderedByDenominationDesc();
         }
-
         public async Task<Dictionary<string, int>> PostStocks(Dictionary<string, int> stocks)
         {
-            List<Stock> stocksSaved = await GetStocks(); //maybe use filtered get method
+            List<Stock> stocksSaved = await GetStocksOrderedByDenominationDesc(); //maybe use filtered get method
             foreach (KeyValuePair<string, int> stock in stocks)
             {
                 HufDenominations denomination = GetHufDenominations(stock.Key);
@@ -45,15 +43,11 @@ namespace SelfCheckoutMachine.Services.Implementations
             await _stockRepository.SaveChanges();
             return GetDictionaryFromList(stocksSaved);
         }
-
-        private HufDenominations GetHufDenominations(string value)
+        public async Task SaveChanges()
         {
-            int valueInt = Convert.ToInt32(value);
-            return (HufDenominations)valueInt;
-            //exception
+            await _stockRepository.SaveChanges();
         }
-
-        private Dictionary<string, int> GetDictionaryFromList(List<Stock> stockList)
+        public Dictionary<string, int> GetDictionaryFromList(List<Stock> stockList)
         {
             Dictionary<string, int> stocks = new Dictionary<string, int>();
             foreach (Stock stock in stockList)
@@ -61,6 +55,21 @@ namespace SelfCheckoutMachine.Services.Implementations
                 stocks.Add(stock.Denomination.GetDescription(), stock.Amount);
             }
             return stocks;
+        }
+        private HufDenominations GetHufDenominations(string value)
+        {
+            int valueInt = Convert.ToInt32(value);
+            return (HufDenominations)valueInt;
+            //exception
+        }
+        public async Task PostStocks(Dictionary<HufDenominations, int> inserted)
+        {
+            Dictionary<string, int> keyValuePairs = new Dictionary<string, int>();
+            foreach (var item in inserted)
+            {
+                keyValuePairs.Add(item.Key.GetDescription(), item.Value);
+            }
+            await PostStocks(keyValuePairs);
         }
     }
 }

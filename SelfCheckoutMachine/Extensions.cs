@@ -14,6 +14,7 @@ namespace SelfCheckoutMachine
         {
             builder.Services
                 .AddTransient<IStockService, StockService>()
+                .AddTransient<ICheckoutService, CheckoutService>()
                 .AddTransient<IStockRepository, StockRepository>();
             builder.Services.AddDbContext<AppDbContext>();
         }

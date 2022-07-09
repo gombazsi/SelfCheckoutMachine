@@ -12,9 +12,9 @@ namespace SelfCheckoutMachine.Repositories.Implementations
         {
             _dbContext = appDbContext;
         }
-        public async Task<List<Stock>> GetStocks()
+        public async Task<List<Stock>> GetStocksOrderedByDenominationDesc()
         {
-            List<Stock> stocksSaved = await _dbContext.Stocks.ToListAsync();
+            List<Stock> stocksSaved = await _dbContext.Stocks.OrderByDescending(s => s.Denomination).ToListAsync();
 
             return stocksSaved;
         }
